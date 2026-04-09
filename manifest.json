@@ -1,0 +1,36 @@
+{
+  "name": "AstroCrew — Aprenda a Programar",
+  "short_name": "AstroCrew",
+  "description": "Jogo educativo de programação em blocos. Controle robôs e aprenda lógica de programação!",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#04060F",
+  "theme_color": "#00E5FF",
+  "orientation": "landscape",
+  "lang": "pt-BR",
+  "categories": ["games", "education"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Jogar Missão 1",
+      "short_name": "Missão 1",
+      "description": "Começa direto na primeira missão",
+      "url": "./index.html"
+    }
+  ]
+}

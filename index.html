@@ -1,0 +1,827 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AstroCrew — Aprenda a Programar</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00E5FF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AstroCrew">
+<link rel="apple-touch-icon" href="icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Exo+2:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#04060F;--deep:#080E1F;--panel:#0F1830;--p2:#141F3A;
+  --bd:#1E2F5A;--text:#E8F0FF;--dim:#6A7A9A;--muted:#2A3A5A;
+  --cyan:#00E5FF;--cbg:rgba(0,229,255,.1);--cbr:rgba(0,229,255,.3);
+  --orange:#FF6B2B;--obg:rgba(255,107,43,.1);--obr:rgba(255,107,43,.3);
+  --green:#06D6A0;--gbg:rgba(6,214,160,.1);--gbr:rgba(6,214,160,.3);
+  --purple:#9B59B6;--pbg:rgba(155,89,182,.1);--pbr:rgba(155,89,182,.3);
+  --amber:#FFD166;--abg:rgba(255,209,102,.1);--abr:rgba(255,209,102,.3);
+  --pink:#FF4D8B;--kbg:rgba(255,77,139,.1);--kbr:rgba(255,77,139,.3);
+  --red:#FF3A3A;
+}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── SELECT SCREEN ── */
+#screen-sel{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto}
+#screen-sel h1{font-family:'Orbitron',monospace;font-size:clamp(1.2rem,4vw,2rem);font-weight:900;color:var(--cyan);letter-spacing:3px;margin-bottom:.3rem;text-align:center}
+#screen-sel p{font-size:.85rem;color:var(--dim);margin-bottom:2rem;text-align:center}
+.planets-row{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;max-width:900px}
+.planet-col{display:flex;flex-direction:column;gap:.6rem;align-items:center;min-width:140px}
+.planet-hdr{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;text-align:center;padding:6px 14px;border-radius:50px;border:1.5px solid var(--bd);color:var(--dim)}
+.lv-card{width:140px;background:var(--panel);border:1.5px solid var(--bd);border-radius:12px;padding:1rem .8rem;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.lv-card:hover:not(.locked){transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.4)}
+.lv-card.locked{opacity:.4;cursor:not-allowed}
+.lv-card .lv-name{font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;color:var(--text);margin-bottom:.3rem}
+.lv-card .lv-concept{font-size:.68rem;color:var(--dim);margin-bottom:.6rem}
+.lv-stars{display:flex;justify-content:center;gap:3px;font-size:.9rem}
+.lv-xp{font-size:.65rem;color:var(--amber);margin-top:.4rem;font-family:'Orbitron',monospace}
+.sel-xp{font-family:'Orbitron',monospace;font-size:.9rem;color:var(--amber);margin-top:1.5rem}
+.phase-badge{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:4px;margin-bottom:.4rem}
+
+/* ── TOPBAR ── */
+#topbar{height:50px;background:var(--deep);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 .8rem;gap:.6rem;flex-shrink:0}
+.logo{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--cyan);letter-spacing:2px;font-weight:700;white-space:nowrap;cursor:pointer; transition: opacity 0.2s;}
+.logo:hover {opacity: 0.8;}
+.logo span{color:var(--orange)}
+.mis-pill{background:var(--p2);border:1px solid var(--bd);border-radius:50px;padding:3px 10px;font-size:.68rem;font-weight:700;color:var(--dim);white-space:nowrap;letter-spacing:.5px}
+.var-chip{display:flex;align-items:center;gap:5px;background:var(--p2);border:1px solid var(--bd);border-radius:7px;padding:3px 8px;font-size:.7rem;flex-shrink:0}
+.vname{color:var(--dim);font-weight:600}.vval{font-family:'Fira Code',monospace;font-weight:700;min-width:26px}
+.vbar{width:44px;height:4px;background:var(--muted);border-radius:2px;overflow:hidden}
+.vfill{height:100%;border-radius:2px;transition:width .4s,background .4s}
+.tv{margin-left:auto;display:flex;background:var(--p2);border:1px solid var(--bd);border-radius:7px;overflow:hidden;flex-shrink:0}
+.tv button{background:none;border:none;color:var(--dim);padding:5px 11px;font-family:'Exo 2',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tv button.on{background:var(--cyan);color:#04060F}
+
+/* ── MAIN ── */
+#main{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* ── PALETTE ── */
+#pal{width:162px;background:var(--deep);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow-y:auto;padding:.4rem;flex-shrink:0}
+.cat{font-size:.56rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:.45rem 0 .2rem .3rem}
+.pb{display:flex;align-items:center;gap:6px;border-radius:8px;padding:6px 8px;margin-bottom:4px;cursor:pointer;font-size:.73rem;font-weight:700;border:1.5px solid transparent;transition:transform .12s,filter .12s;user-select:none;position:relative}
+.pb:hover{transform:scale(1.04);filter:brightness(1.12)}
+.pb::before{content:'';position:absolute;top:-4px;left:11px;width:12px;height:4px;border-radius:2px 2px 0 0;background:currentColor;opacity:.5}
+.pb-c{background:var(--cbg);border-color:var(--cbr);color:var(--cyan)}
+.pb-o{background:var(--obg);border-color:var(--obr);color:var(--orange)}
+.pb-g{background:var(--gbg);border-color:var(--gbr);color:var(--green)}
+.pb-p{background:var(--pbg);border-color:var(--pbr);color:var(--purple)}
+.pb-a{background:var(--abg);border-color:var(--abr);color:var(--amber)}
+.pb-k{background:var(--kbg);border-color:var(--kbr);color:var(--pink)}
+
+/* ── WORKSPACE ── */
+#ws-wrap{flex:1;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--bd)}
+#wsh{height:34px;display:flex;align-items:center;padding:0 .7rem;border-bottom:1px solid var(--bd);gap:6px;flex-shrink:0}
+#wsh span{font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+#btn-clr{margin-left:auto;background:none;border:1px solid var(--bd);color:var(--dim);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer}
+#btn-clr:hover{border-color:var(--red);color:var(--red)}
+#ws-blocks{flex:1;overflow-y:auto;padding:.55rem;min-height:0}
+#ws-code{flex:1;overflow-y:auto;padding:.55rem;min-height:0;display:none}
+.code-box{background:#060910;border:1px solid var(--bd);border-radius:10px;padding:.9rem;font-family:'Fira Code',monospace;font-size:.78rem;line-height:1.85;white-space:pre;min-height:100px}
+.e-ws{display:flex;flex-direction:column;align-items:center;justify-content:center;height:75%;gap:8px;color:var(--muted);font-size:.8rem;font-weight:600;text-align:center;padding:1.5rem}
+
+/* ── WORKSPACE BLOCKS ── */
+.wb{border-radius:10px;margin-bottom:5px;border:1.5px solid transparent;position:relative}
+.wb::before{content:'';position:absolute;top:-4px;left:12px;width:12px;height:4px;border-radius:2px 2px 0 0;background:currentColor;opacity:.5}
+.wbh{display:flex;align-items:center;gap:6px;padding:7px 8px;flex-wrap:wrap}
+.wb:not(.wbc) .wbh{border-radius:8px}
+.wb.wbc .wbh{border-radius:8px 8px 0 0}
+.wbi{font-size:.82rem;flex-shrink:0}.wbl{font-size:.75rem;font-weight:700}
+.wba{display:flex;gap:2px;margin-left:auto;align-items:center}
+.wbtn{background:rgba(0,0,0,.2);border:none;border-radius:4px;color:inherit;font-size:.68rem;padding:2px 4px;cursor:pointer;opacity:.6;transition:opacity .15s}
+.wbtn:hover{opacity:1}
+.wp{display:inline-flex;align-items:center;background:rgba(0,0,0,.28);border-radius:4px;font-family:'Fira Code',monospace;font-size:.7rem;font-weight:700}
+.wp select,.wp input{background:transparent;border:none;color:inherit;font-family:inherit;font-size:inherit;font-weight:inherit;outline:none;padding:1px 3px;cursor:pointer}
+.wp input[type=number]{width:28px;text-align:center}
+.wp input[type=text]{width:80px}
+.wbody{border-radius:0 0 8px 8px;padding:.4rem .4rem .4rem 1.3rem;min-height:32px;border-top:1px dashed rgba(255,255,255,.07)}
+.wbe{display:flex;align-items:center;justify-content:center;height:26px;color:rgba(255,255,255,.15);font-size:.68rem;font-style:italic;border-radius:5px;border:1px dashed rgba(255,255,255,.07);margin-bottom:3px}
+.wadd{display:flex;align-items:center;gap:5px;padding:2px 5px;border-radius:4px;border:1px dashed rgba(255,255,255,.1);cursor:default;font-size:.65rem;color:rgba(255,255,255,.25)}
+.wadd em{cursor:pointer;padding:1px 3px;border-radius:3px;transition:background .15s;font-style:normal}
+.wadd em:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)}
+.wc-c{background:var(--cbg);border-color:var(--cbr);color:var(--cyan)}.wc-c::before{background:var(--cyan)}
+.wc-o{background:var(--obg);border-color:var(--obr);color:var(--orange)}.wc-o::before{background:var(--orange)}
+.wc-g{background:var(--gbg);border-color:var(--gbr);color:var(--green)}.wc-g::before{background:var(--green)}
+.wc-p{background:var(--pbg);border-color:var(--pbr);color:var(--purple)}.wc-p::before{background:var(--purple)}
+.wc-a{background:var(--abg);border-color:var(--abr);color:var(--amber)}.wc-a::before{background:var(--amber)}
+.wc-k{background:var(--kbg);border-color:var(--kbr);color:var(--pink)}.wc-k::before{background:var(--pink)}
+.wb.exec{box-shadow:0 0 0 2px var(--cyan),0 0 12px rgba(0,229,255,.3)}
+
+/* ── GAME PANEL ── */
+#gp{width:300px;display:flex;flex-direction:column;flex-shrink:0}
+#gph{height:34px;display:flex;align-items:center;padding:0 .7rem;border-bottom:1px solid var(--bd);flex-shrink:0}
+#gph span{font-size:.58rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+#ga{flex:1;display:flex;align-items:center;justify-content:center;padding:.6rem;overflow:hidden}
+#grid{display:grid;gap:2px}
+.gc{border-radius:5px;border:1.5px solid var(--bd);background:var(--panel);display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s}
+.gc.wall{background:#040810;border-color:#080F1F}
+.gc.tgt{background:rgba(255,107,43,.12);border-color:rgba(255,107,43,.4)}
+.gc.fxd{background:rgba(6,214,160,.12);border-color:rgba(6,214,160,.4)}
+.gc.trl{background:rgba(0,229,255,.05);border-color:rgba(0,229,255,.15)}
+.gc.rbt{background:rgba(0,229,255,.08);border-color:var(--cyan)}
+.gc.rch{background:rgba(255,209,102,.08);border-color:rgba(255,209,102,.3)}
+#hint-box{margin:.4rem .6rem .4rem;background:var(--p2);border:1px solid var(--bd);border-radius:8px;padding:.5rem .7rem;font-size:.7rem;line-height:1.5;color:var(--dim)}
+#hint-box strong{color:var(--text);display:block;font-size:.72rem;margin-bottom:.2rem}
+
+/* ── BOTTOM BAR ── */
+#bot{height:48px;background:var(--deep);border-top:1px solid var(--bd);display:flex;align-items:center;padding:0 .8rem;gap:.5rem;flex-shrink:0}
+#btn-run{background:var(--green);border:none;color:#04060F;font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;padding:8px 20px;border-radius:7px;cursor:pointer;box-shadow:0 0 12px rgba(6,214,160,.3);transition:all .2s}
+#btn-run:hover:not(:disabled){box-shadow:0 0 22px rgba(6,214,160,.5);transform:translateY(-1px)}
+#btn-run:disabled{opacity:.35;cursor:not-allowed;transform:none}
+#btn-stop{background:var(--red);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;padding:8px 14px;border-radius:7px;cursor:pointer;display:none}
+#btn-rst{background:transparent;border:1px solid var(--bd);color:var(--dim);font-family:'Orbitron',monospace;font-size:.7rem;font-weight:700;padding:7px 12px;border-radius:7px;cursor:pointer;transition:all .2s}
+#btn-rst:hover{border-color:var(--dim);color:var(--text)}
+#sb{font-size:.75rem;color:var(--dim);font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sb.ok{color:var(--green)}#sb.err{color:var(--red)}#sb.warn{color:var(--amber)}
+.dots{display:flex;gap:4px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--bd);cursor:pointer;transition:all .2s;border:none;padding:0}
+.dot.done{background:var(--green)}
+.dot.act{background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.dot.locked{opacity:.3;cursor:not-allowed}
+
+/* ── FEEDBACK OVERLAY ── */
+#fb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:100;align-items:center;justify-content:center}
+#fb.show{display:flex}
+#fb-box{background:var(--panel);border:1.5px solid var(--bd);border-radius:20px;padding:2.2rem 1.8rem;max-width:420px;width:92%;text-align:center;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.fb-ico{font-size:3.2rem;margin-bottom:.7rem;display:block}
+.fb-t{font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--text);margin-bottom:.4rem}
+.fb-b{font-size:.8rem;color:var(--dim);line-height:1.6;margin-bottom:.8rem}
+.fb-stars{display:flex;justify-content:center;gap:8px;font-size:1.8rem;margin-bottom:.8rem}
+.fb-code{background:#060910;border:1px solid var(--bd);border-radius:8px;padding:.7rem;font-family:'Fira Code',monospace;font-size:.72rem;line-height:1.7;margin-bottom:.9rem;text-align:left;max-height:110px;overflow-y:auto;white-space:pre}
+.fbb{width:100%;padding:10px;border-radius:8px;margin-bottom:6px;font-family:'Orbitron',monospace;font-size:.73rem;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s;border:none}
+.fbb-g{background:var(--green);color:#04060F}.fbb-o{background:transparent;border:1px solid var(--bd);color:var(--dim)}
+
+/* Python syntax colors */
+.pk{color:#C792EA}.pf{color:#82AAFF}.pn{color:#F78C6C}.pc{color:#546E7A;font-style:italic}.pi{color:rgba(255,255,255,.1)}
+
+/* scrollbar */
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+
+/* ── OFFLINE BANNER ── */
+#offline-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(255,107,43,.18);border-bottom:1px solid var(--obr);padding:5px 16px;text-align:center;font-size:.7rem;color:var(--orange);font-weight:700;letter-spacing:.5px;backdrop-filter:blur(4px)}
+#offline-banner.show{display:block}
+
+/* ── INSTALL BUTTON ── */
+#btn-install{display:none;background:transparent;border:1px solid var(--cbr);color:var(--cyan);font-family:'Orbitron',monospace;font-size:.62rem;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap}
+#btn-install:hover{background:var(--cbg)}
+#btn-install.show{display:block}
+
+/* ── SAVE INDICATOR ── */
+.saved-pulse{animation:savedFade 1.4s ease forwards}
+@keyframes savedFade{0%{opacity:1}80%{opacity:1}100%{opacity:0}}
+</style>
+</head>
+<body>
+<div id="offline-banner">📡 Modo Offline — Progresso salvo localmente</div>
+
+<!-- ══ LEVEL SELECT SCREEN ══ -->
+<div id="screen-sel">
+  <h1>🛸 ASTRO<span style="color:var(--orange)">CREW</span></h1>
+  <p>Escolha uma missão e comece a programar a galáxia!</p>
+  <div class="planets-row" id="planet-grid"></div>
+  <div class="sel-xp">⭐ <span id="sel-xp">0</span> XP conquistados</div>
+</div>
+
+<!-- ══ GAME SCREEN ══ -->
+<div id="screen-game" style="display:none;flex-direction:column;height:100vh">
+
+  <div id="topbar">
+    <!-- BOTÃO RETORNO MENU (Logo Clicável) -->
+    <div class="logo" onclick="goSelect()" title="Voltar ao Menu Principal">ASTRO<span>CREW</span></div>
+    <div class="mis-pill" id="mis-pill">🪐 IGNIX · Missão 1</div>
+    <div class="var-chip">
+      <span class="vname">energia</span>
+      <span class="vval" id="eV">100</span>
+      <div class="vbar"><div class="vfill" id="eF" style="width:100%;background:var(--green)"></div></div>
+    </div>
+    <div class="tv">
+      <button class="on" id="tv-b" onclick="setView('b')">🧩 Blocos</button>
+      <button id="tv-c" onclick="setView('c')">{ } Python</button>
+    </div>
+    <button id="btn-install" onclick="installApp()" title="Instalar como app">⬇️ Instalar</button>
+  </div>
+
+  <div id="main">
+    <!-- PALETTE -->
+    <div id="pal">
+      <div class="cat">🚀 Movimento</div>
+      <div class="pb pb-c" onclick="add('mv_r')"><span>➡️</span><span>mover_direita</span></div>
+      <div class="pb pb-c" onclick="add('mv_l')"><span>⬅️</span><span>mover_esquerda</span></div>
+      <div class="pb pb-c" onclick="add('mv_u')"><span>⬆️</span><span>mover_cima</span></div>
+      <div class="pb pb-c" onclick="add('mv_d')"><span>⬇️</span><span>mover_baixo</span></div>
+      <div class="cat">🔁 Controle</div>
+      <div class="pb pb-o" id="pb-repeat" onclick="add('repeat')"><span>🔁</span><span>repetir (N)</span></div>
+      <div class="pb pb-p" id="pb-if" onclick="add('ifc')"><span>❓</span><span>se (condição)</span></div>
+      <div class="cat">🔧 Sistema</div>
+      <div class="pb pb-g" onclick="add('fix')"><span>🔧</span><span>consertar()</span></div>
+      <div class="pb pb-g" id="pb-rch" onclick="add('rch')"><span>🔋</span><span>recarregar()</span></div>
+      <div class="cat">📦 Variáveis</div>
+      <div class="pb pb-a" id="pb-sv" onclick="add('sv')"><span>📦</span><span>definir variável</span></div>
+      <div class="cat">⚙️ Funções</div>
+      <div class="pb pb-k" id="pb-def" onclick="add('def')"><span>⚙️</span><span>criar função</span></div>
+      <div class="pb pb-k" id="pb-call" onclick="add('call')"><span>▶️</span><span>chamar função</span></div>
+    </div>
+
+    <!-- WORKSPACE -->
+    <div id="ws-wrap">
+      <div id="wsh">
+        <span>📋 Meu Programa</span>
+        <button id="btn-clr" onclick="clrWS()">✕ Limpar</button>
+      </div>
+      <div id="ws-blocks"><div class="e-ws"><div style="font-size:2rem">🤖</div>Clique nos blocos ao lado<br>para montar seu programa!</div></div>
+      <div id="ws-code"><div class="code-box" id="code-box"></div></div>
+    </div>
+
+    <!-- GAME PANEL -->
+    <div id="gp">
+      <div id="gph"><span>🌌 Campo de Missão</span></div>
+      <div id="ga"><div id="grid"></div></div>
+      <div id="hint-box"><strong id="hint-t">Missão</strong><span id="hint-b"></span></div>
+    </div>
+  </div>
+
+  <div id="bot">
+    <button id="btn-run" onclick="runProg()">▶ EXECUTAR</button>
+    <button id="btn-stop" onclick="stopExec()">■ PARAR</button>
+    <button id="btn-rst" onclick="resetLv()">↩ Reiniciar</button>
+    <span id="sb">Monte seu programa e pressione EXECUTAR!</span>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+
+<!-- ══ FEEDBACK ══ -->
+<div id="fb">
+  <div id="fb-box">
+    <span class="fb-ico" id="fb-ico">🏆</span>
+    <div class="fb-t" id="fb-t"></div>
+    <div class="fb-stars" id="fb-s"></div>
+    <div class="fb-b" id="fb-b"></div>
+    <div class="fb-code" id="fb-code" style="display:none"></div>
+    <button class="fbb fbb-g" id="fb-nxt">▶ Próxima missão</button>
+    <button class="fbb fbb-o" onclick="closeFB();resetLv()">↩ Tentar de novo</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// BLOCK DEFINITIONS
+// ════════════════════════════════════════════════
+const BD = {
+  mv_r:{lbl:'mover_direita',ico:'➡️',col:'c',cont:false,dp:{n:1},
+    pH:p=>`<span class="wp">(<input type="number" min="1" max="9" value="${p.n}" style="width:24px" onchange="upP(this,'n')">)</span>`,
+    py:(p)=>`mover_direita(${p.n})`,
+    run:async(p,s)=>{for(let i=0;i<p.n;i++){if(s.stop)return;await mv(0,1,s)}}},
+  mv_l:{lbl:'mover_esquerda',ico:'⬅️',col:'c',cont:false,dp:{n:1},
+    pH:p=>`<span class="wp">(<input type="number" min="1" max="9" value="${p.n}" style="width:24px" onchange="upP(this,'n')">)</span>`,
+    py:(p)=>`mover_esquerda(${p.n})`,
+    run:async(p,s)=>{for(let i=0;i<p.n;i++){if(s.stop)return;await mv(0,-1,s)}}},
+  mv_u:{lbl:'mover_cima',ico:'⬆️',col:'c',cont:false,dp:{n:1},
+    pH:p=>`<span class="wp">(<input type="number" min="1" max="9" value="${p.n}" style="width:24px" onchange="upP(this,'n')">)</span>`,
+    py:(p)=>`mover_cima(${p.n})`,
+    run:async(p,s)=>{for(let i=0;i<p.n;i++){if(s.stop)return;await mv(-1,0,s)}}},
+  mv_d:{lbl:'mover_baixo',ico:'⬇️',col:'c',cont:false,dp:{n:1},
+    pH:p=>`<span class="wp">(<input type="number" min="1" max="9" value="${p.n}" style="width:24px" onchange="upP(this,'n')">)</span>`,
+    py:(p)=>`mover_baixo(${p.n})`,
+    run:async(p,s)=>{for(let i=0;i<p.n;i++){if(s.stop)return;await mv(1,0,s)}}},
+  fix:{lbl:'consertar',ico:'🔧',col:'g',cont:false,dp:{},pH:()=>'()',
+    py:()=>'consertar()',run:async(p,s)=>await fixSys(s)},
+  rch:{lbl:'recarregar',ico:'🔋',col:'g',cont:false,dp:{},pH:()=>'()',
+    py:()=>'recarregar()',run:async(p,s)=>await recharge(s)},
+  repeat:{lbl:'repetir',ico:'🔁',col:'o',cont:true,dp:{n:3},
+    pH:p=>`<span class="wp">(<input type="number" min="1" max="30" value="${p.n}" style="width:26px" onchange="upP(this,'n')"> vezes)</span>`,
+    py:(p,body,pad)=>`for i in range(${p.n}):\n${body||pad+'    pass'}`,
+    run:async(p,s,ch)=>{for(let i=0;i<p.n;i++){if(s.stop)break;await runBlocks(ch,s)}}},
+  ifc:{lbl:'se',ico:'❓',col:'p',cont:true,dp:{cond:'sistema_quebrado()'},
+    pH:p=>`<span class="wp">(<select onchange="upP(this,'cond')">
+      <option ${p.cond==='sistema_quebrado()'?'selected':''}>sistema_quebrado()</option>
+      <option ${p.cond==='energia < 30'?'selected':''}>energia &lt; 30</option>
+      <option ${p.cond==='energia > 60'?'selected':''}>energia &gt; 60</option>
+    </select>):</span>`,
+    py:(p,body,pad)=>`if ${p.cond}:\n${body||pad+'    pass'}`,
+    run:async(p,s,ch)=>{
+      const L=LEVELS[curLv],k=s.pos[0]+','+s.pos[1];
+      let ok=false;
+      if(p.cond==='sistema_quebrado()') ok=L.targets.some(t=>t[0]+','+t[1]===k)&&!s.fixed.has(k);
+      else if(p.cond==='energia < 30') ok=s.e<30;
+      else if(p.cond==='energia > 60') ok=s.e>60;
+      if(ok) await runBlocks(ch,s);
+    }},
+  sv:{lbl:'definir',ico:'📦',col:'a',cont:false,dp:{v:'energia',n:100},
+    pH:p=>`<span class="wp"><select onchange="upP(this,'v')"><option>energia</option></select></span> = <span class="wp"><input type="number" min="0" max="999" value="${p.n}" style="width:34px" onchange="upP(this,'n')"></span>`,
+    py:(p)=>`${p.v} = ${p.n}`,
+    run:async(p,s)=>{s.e=parseInt(p.n);updateVUI(s);await sleep(200)}},
+  def:{lbl:'def',ico:'⚙️',col:'k',cont:true,dp:{name:'minha_funcao'},
+    pH:p=>`<span class="wp"><input type="text" value="${p.name}" style="width:90px" onchange="upP(this,'name');renderWS();updateCode()">():</span>`,
+    py:(p,body,pad)=>`def ${p.name}():\n${body||pad+'    pass'}`,
+    run:async(p,s,ch)=>{s.fns[p.name]=ch}},
+  call:{lbl:'chamar',ico:'▶️',col:'k',cont:false,dp:{name:'minha_funcao'},
+    pH:p=>{
+      const fns=ws.filter(b=>b.type==='def').map(b=>b.params.name);
+      const opts=fns.length?fns.map(n=>`<option ${p.name===n?'selected':''}>${n}</option>`).join(''):`<option>${p.name}</option>`;
+      return `<span class="wp"><select onchange="upP(this,'name')">${opts}</select>()</span>`;
+    },
+    py:(p)=>`${p.name}()`,
+    run:async(p,s)=>{
+      const fn=s.fns[p.name];
+      if(fn) await runBlocks(fn,s);
+      else{setSB(`⚠️ Função "${p.name}" não foi definida!`,'warn');await sleep(500);}
+    }},
+};
+
+// ════════════════════════════════════════════════
+// LEVELS
+// ════════════════════════════════════════════════
+const LEVELS=[
+  {planet:'IGNIX 🔥',phase:'Sequência',name:'Missão 1',xp:60,opt:4,cost:8,startE:100,
+   tip:'Blocos executam em ordem, um após o outro. Planeje o caminho até ⚡ e conserte!',
+   cols:6,rows:5,
+   grid:[[0,0,0,0,0,0],[0,3,1,1,0,0],[0,0,0,1,0,0],[0,0,1,1,1,2],[0,0,0,0,0,0]],
+   start:[1,1],targets:[[3,5]],pal:['mv_r','mv_l','mv_u','mv_d','fix']},
+  {planet:'IGNIX 🔥',phase:'Sequência',name:'Missão 2',xp:80,opt:6,cost:8,startE:100,
+   tip:'Dois sistemas! Encontre o caminho até [1,5] e depois até [3,4]. Cuidado com os bloqueios.',
+   cols:6,rows:5,
+   grid:[[0,0,0,0,0,0],[0,3,1,1,1,2],[0,0,0,0,1,0],[0,0,0,0,2,0],[0,0,0,0,0,0]],
+   start:[1,1],targets:[[1,5],[3,4]],pal:['mv_r','mv_l','mv_u','mv_d','fix']},
+  {planet:'AQUAROS 🌊',phase:'Loops',name:'Missão 3',xp:90,opt:3,cost:6,startE:100,
+   tip:'3 sistemas à distância igual! Sem loop: 6 blocos. Com repetir(3){ mover(2), consertar() }: só 3! 🤯',
+   cols:8,rows:3,
+   grid:[[0,0,0,0,0,0,0,0],[0,3,1,2,1,2,1,2],[0,0,0,0,0,0,0,0]],
+   start:[1,1],targets:[[1,3],[1,5],[1,7]],pal:['mv_r','mv_d','mv_u','mv_l','fix','repeat']},
+  {planet:'AQUAROS 🌊',phase:'Loops',name:'Missão 4',xp:100,opt:3,cost:8,startE:100,
+   tip:'Sistemas na vertical! repetir(3){ mover_baixo(2), consertar() } resolve tudo com apenas 3 blocos.',
+   cols:4,rows:8,
+   grid:[[0,0,0,0],[0,0,3,0],[0,0,1,0],[0,0,2,0],[0,0,1,0],[0,0,2,0],[0,0,1,0],[0,0,2,0]],
+   start:[1,2],targets:[[3,2],[5,2],[7,2]],pal:['mv_r','mv_d','mv_u','mv_l','fix','repeat']},
+  {planet:'NEBULOX 💜',phase:'Variáveis',name:'Missão 5',xp:110,opt:5,cost:20,startE:100,
+   tip:'⚠️ Cada passo gasta 20 energia! O caminho total precisa de 120. Passe pela estação 🔋 para recarregar!',
+   cols:6,rows:6,
+   grid:[[0,0,0,0,0,0],[0,3,1,1,0,0],[0,0,0,4,0,0],[0,0,0,1,0,0],[0,0,0,1,0,0],[0,0,0,2,0,0]],
+   start:[1,1],targets:[[5,3]],recharge:[[2,3]],pal:['mv_r','mv_d','mv_u','mv_l','fix','repeat','rch']},
+  {planet:'NEBULOX 💜',phase:'Variáveis',name:'Missão 6',xp:120,opt:4,cost:15,startE:50,
+   tip:'⚠️ ENERGIA COMEÇA EM 50! O caminho usa 75 (5 passos × 15). Use "definir energia = 100" como primeiro bloco para conseguir energia suficiente!',
+   cols:7,rows:4,
+   grid:[[0,0,0,0,0,0,0],[0,3,1,1,1,1,0],[0,0,0,0,0,2,0],[0,0,0,0,0,0,0]],
+   start:[1,1],targets:[[2,5]],pal:['mv_r','mv_d','mv_u','mv_l','fix','sv']},
+  {planet:'VORTEX 🌀',phase:'Condicionais',name:'Missão 7',xp:140,opt:4,cost:7,startE:100,
+   tip:'Use se(sistema_quebrado()){ consertar() } para reparar automaticamente ao passar! O código funciona p/ qualquer arranjo.',
+   cols:8,rows:3,
+   grid:[[0,0,0,0,0,0,0,0],[0,3,1,2,1,1,1,2],[0,0,0,0,0,0,0,0]],
+   start:[1,1],targets:[[1,3],[1,7]],pal:['mv_r','mv_d','mv_u','mv_l','fix','repeat','ifc']},
+  {planet:'VORTEX 🌀',phase:'Condicionais',name:'Missão 8',xp:150,opt:4,cost:7,startE:100,
+   tip:'Combine loops + condicionais: repetir(5){ mover_direita(1), se(sistema_quebrado()){ consertar() } }',
+   cols:7,rows:3,
+   grid:[[0,0,0,0,0,0,0],[0,3,1,2,1,2,2],[0,0,0,0,0,0,0]],
+   start:[1,1],targets:[[1,3],[1,5],[1,6]],pal:['mv_r','mv_d','mv_u','mv_l','fix','repeat','ifc']},
+  {planet:'SOLYX ⭐',phase:'Funções',name:'Missão 9',xp:160,opt:4,cost:6,startE:100,
+   tip:'Crie uma função "reparo" com { mover_direita(2), consertar() }. Chame-a 3 vezes em vez de repetir os blocos!',
+   cols:8,rows:3,
+   grid:[[0,0,0,0,0,0,0,0],[0,3,1,2,1,2,1,2],[0,0,0,0,0,0,0,0]],
+   start:[1,1],targets:[[1,3],[1,5],[1,7]],pal:['mv_r','mv_d','mv_u','mv_l','fix','repeat','ifc','def','call']},
+  {planet:'SOLYX ⭐',phase:'Funções',name:'Missão 10 🏆',xp:200,opt:4,cost:6,startE:100,
+   tip:'DESAFIO FINAL! Crie a função "navegar": { mover_direita(1), se(sistema_quebrado()){ consertar() } }. Depois: repetir(7){ navegar() }.',
+   cols:9,rows:3,
+   grid:[[0,0,0,0,0,0,0,0,0],[0,3,1,2,1,1,2,1,2],[0,0,0,0,0,0,0,0,0]],
+   start:[1,1],targets:[[1,3],[1,6],[1,8]],pal:['mv_r','mv_d','mv_u','mv_l','fix','repeat','ifc','def','call']},
+];
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+let curLv=0, ws=[], idC=1, view='b', running=false;
+let gs={pos:[0,0],fixed:new Set(),e:100,trail:new Set(),stop:false,fns:{}};
+
+// ════════════════════════════════════════════════
+// PERSISTÊNCIA — localStorage
+// ════════════════════════════════════════════════
+const SAVE_KEY='astrocrew-prog-v1';
+function loadProg(){
+  try{const s=localStorage.getItem(SAVE_KEY);return s?JSON.parse(s):{stars:[],xp:0};}
+  catch(e){return{stars:[],xp:0};}
+}
+function saveProg(){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(prog));showSavedIndicator();}
+  catch(e){console.warn('Falha ao salvar:',e);}
+}
+function resetProg(){
+  if(!confirm('Zerar todo o progresso? Esta ação não pode ser desfeita.'))return;
+  localStorage.removeItem(SAVE_KEY);location.reload();
+}
+function showSavedIndicator(){
+  const el=document.getElementById('sb');
+  if(!el)return;
+  const prev=el.textContent;
+  el.textContent='💾 Progresso salvo!';
+  el.className='ok saved-pulse';
+  setTimeout(()=>{el.textContent=prev;el.className='';},1400);
+}
+const prog=loadProg();
+const PHASE_COLORS={
+  'Sequência':'var(--cyan)','Loops':'var(--orange)','Variáveis':'var(--amber)',
+  'Condicionais':'var(--purple)','Funções':'var(--pink)'
+};
+
+// ════════════════════════════════════════════════
+// SOUND
+// ════════════════════════════════════════════════
+let actx=null;
+function getAC(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();return actx;}
+function beep(f=440,d=.1,v=.06,t='sine'){
+  try{const a=getAC(),o=a.createOscillator(),g=a.createGain();
+  o.connect(g);g.connect(a.destination);o.type=t;o.frequency.value=f;
+  g.gain.setValueAtTime(v,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d);
+  o.start();o.stop(a.currentTime+d);}catch(e){}
+}
+const snd={
+  move:()=>beep(320,.07,.04),
+  fix:()=>{beep(500,.1,.06);setTimeout(()=>beep(700,.1,.05),110)},
+  wall:()=>beep(140,.18,.07,'sawtooth'),
+  rch:()=>beep(440,.2,.06),
+  win:()=>[350,450,550,700,900].forEach((f,i)=>setTimeout(()=>beep(f,.18,.08),i*110)),
+  err:()=>beep(200,.3,.06,'sawtooth'),
+};
+
+// ════════════════════════════════════════════════
+// SELECT SCREEN
+// ════════════════════════════════════════════════
+function buildSelect(){
+  const phases=[...new Set(LEVELS.map(l=>l.phase))];
+  const grid=document.getElementById('planet-grid');
+  grid.innerHTML='';
+  phases.forEach(phase=>{
+    const lvs=LEVELS.filter(l=>l.phase===phase);
+    const planet=lvs[0].planet;
+    const col=document.createElement('div');
+    col.className='planet-col';
+    const hdr=document.createElement('div');
+    hdr.className='planet-hdr';
+    hdr.style.borderColor=PHASE_COLORS[phase]||'var(--bd)';
+    hdr.style.color=PHASE_COLORS[phase]||'var(--dim)';
+    hdr.textContent=planet;
+    col.appendChild(hdr);
+    lvs.forEach(lv=>{
+      const idx=LEVELS.indexOf(lv);
+      const stars = prog.stars[idx] || 0;
+      // Lógica de desbloqueio: Missão 0 sempre aberta, ou se a anterior tiver ao menos 1 estrela
+      const unlocked = idx === 0 || (prog.stars[idx-1] !== undefined);
+      
+      const card=document.createElement('div');
+      card.className='lv-card'+(unlocked?'':' locked');
+      const pc=PHASE_COLORS[lv.phase]||'var(--bd)';
+      const starsHtml=[1,2,3].map(i=>`<span style="opacity:${stars>=i?1:.2}">${stars>=i?'⭐':'☆'}</span>`).join('');
+      card.innerHTML=`
+        <div class="phase-badge" style="background:${pc}20;color:${pc};border:1px solid ${pc}40">${lv.phase}</div>
+        <div class="lv-name">${lv.name}</div>
+        <div class="lv-concept">${lv.phase}</div>
+        <div class="lv-stars">${unlocked?starsHtml:'<span>🔒</span>'}</div>
+        <div class="lv-xp">+${lv.xp} XP</div>`;
+      if(unlocked) card.onclick=()=>startGame(idx);
+      col.appendChild(card);
+    });
+    grid.appendChild(col);
+  });
+  document.getElementById('sel-xp').textContent=prog.xp;
+}
+
+function goSelect(){
+  if(running) stopExec();
+  document.getElementById('screen-sel').style.display='flex';
+  document.getElementById('screen-game').style.display='none';
+  buildSelect();
+}
+
+function startGame(idx){
+  curLv=idx;
+  document.getElementById('screen-sel').style.display='none';
+  document.getElementById('screen-game').style.display='flex';
+  initLevel(idx);
+}
+
+// ════════════════════════════════════════════════
+// WORKSPACE LOGIC
+// ════════════════════════════════════════════════
+function mkB(type,pid=null){return{id:idC++,type,params:{...BD[type].dp},children:BD[type].cont?[]:null,pid};}
+function add(type,arr,pid){(arr||ws).push(mkB(type,pid));renderWS();updateCode();}
+function addChild(type,pid){const p=findB(pid,ws);if(p&&p.children)add(type,p.children,pid);}
+function findB(id,arr){for(const b of arr){if(b.id===id)return b;if(b.children){const f=findB(id,b.children);if(f)return f;}}return null;}
+function rmB(id){rmArr(id,ws);renderWS();updateCode();}
+function rmArr(id,a){const i=a.findIndex(b=>b.id===id);if(i>=0){a.splice(i,1);return true;}for(const b of a)if(b.children&&rmArr(id,b.children))return true;return false;}
+function mvUp(id){swp(id,ws,-1);renderWS();updateCode();}
+function mvDn(id){swp(id,ws,1);renderWS();updateCode();}
+function swp(id,a,d){const i=a.findIndex(b=>b.id===id);if(i>=0){const n=i+d;if(n>=0&&n<a.length){[a[i],a[n]]=[a[n],a[i]];return true;}}for(const b of a)if(b.children&&swp(id,b.children,d))return true;return false;}
+function upP(el,k){const bEl=el.closest('.wb');if(!bEl)return;const b=findB(parseInt(bEl.dataset.id),ws);if(b){b.params[k]=el.type==='number'?parseInt(el.value)||1:el.value;updateCode();}}
+function clrWS(){ws=[];renderWS();updateCode();}
+function countB(arr){return(arr||[]).reduce((n,b)=>n+1+(b.children?countB(b.children):0),0);}
+
+function renderWS(){
+  const el=document.getElementById('ws-blocks');
+  if(!ws.length){el.innerHTML='<div class="e-ws"><div style="font-size:2rem">🤖</div>Clique nos blocos ao lado<br>para montar seu programa!</div>';return;}
+  el.innerHTML=renderArr(ws,true);
+}
+function renderArr(arr,root){return arr.map((b,i)=>renderB(b,root,i,arr.length)).join('');}
+function renderB(b,root,idx,tot){
+  const d=BD[b.type];const cc='wc-'+d.col;const isC=d.cont&&b.children!==null;
+  const ord=root?`${idx>0?`<button class="wbtn" onclick="mvUp(${b.id})">↑</button>`:''}${idx<tot-1?`<button class="wbtn" onclick="mvDn(${b.id})">↓</button>`:''}`:'';
+  let body='';
+  if(isC){
+    const inner=b.children.length?renderArr(b.children,false):'<div class="wbe">↳ adicione blocos aqui</div>';
+    const L=LEVELS[curLv];
+    const opts=L.pal.filter(t=>!BD[t].cont||t==='def').map(t=>`<em onclick="addChild('${t}',${b.id})" title="${BD[t].lbl}">${BD[t].ico}</em>`).join('');
+    body=`<div class="wbody">${inner}<div class="wadd">＋ ${opts}</div></div>`;
+  }
+  return`<div class="wb ${cc} ${isC?'wbc':''}" data-id="${b.id}" id="wb${b.id}">
+    <div class="wbh"><span class="wbi">${d.ico}</span><span class="wbl">${d.lbl}</span>${d.pH(b.params)}
+    <div class="wba">${ord}<button class="wbtn" onclick="rmB(${b.id})">✕</button></div></div>${body}</div>`;
+}
+
+// ════════════════════════════════════════════════
+// PYTHON GENERATOR
+// ════════════════════════════════════════════════
+function toPy(arr,ind){
+  if(!arr||!arr.length)return'';
+  const pad='    '.repeat(ind);
+  return arr.map(b=>{
+    const d=BD[b.type];
+    if(b.type==='repeat'||b.type==='ifc'||b.type==='def'){
+      const body=b.children&&b.children.length?toPy(b.children,ind+1):'    '.repeat(ind+1)+'pass';
+      return pad+d.py(b.params,body,pad);
+    }
+    return pad+d.py(b.params);
+  }).join('\n');
+}
+function hlPy(code){
+  const KW=/\b(for|if|else|in|range|def|return|pass|and|or|not)\b/g;
+  const FN=/\b(mover_direita|mover_esquerda|mover_cima|mover_baixo|consertar|recarregar|sistema_quebrado|[a-z_]+(?=\())\b/g;
+  return code.split('\n').map(line=>{
+    const ind=line.match(/^(\s*)/)[1];
+    const rest=line.slice(ind.length);
+    const h=rest.replace(KW,'<span class="pk">$1</span>').replace(FN,'<span class="pf">$1</span>').replace(/\b(\d+)\b/g,'<span class="pn">$1</span>').replace(/(#.*)$/,'<span class="pc">$1</span>');
+    return ind.replace(/ {4}/g,'<span class="pi">│   </span>')+h;
+  }).join('\n');
+}
+function updateCode(){const py=toPy(ws,0)||'# Código gerado...';document.getElementById('code-box').innerHTML=hlPy(py);}
+function setView(m){
+  view=m;
+  document.getElementById('ws-blocks').style.display=m==='b'?'':'none';
+  document.getElementById('ws-code').style.display=m==='c'?'':'none';
+  document.getElementById('tv-b').classList.toggle('on',m==='b');
+  document.getElementById('tv-c').classList.toggle('on',m==='c');
+  if(m==='c') updateCode();
+}
+
+// ════════════════════════════════════════════════
+// GAME ENGINE
+// ════════════════════════════════════════════════
+function initLevel(idx){
+  curLv=idx;
+  const L=LEVELS[idx];
+  gs={pos:[...L.start],fixed:new Set(),e:L.startE,trail:new Set(),stop:false,fns:{}};
+  document.getElementById('mis-pill').textContent=`🪐 ${L.planet} · ${L.name}`;
+  document.getElementById('hint-t').textContent=`${L.name} — ${L.phase}`;
+  document.getElementById('hint-b').textContent=L.tip;
+  ws=[];renderWS();updateCode();
+  updateVUI(gs);renderGrid();
+  setSB('Monte seu programa e pressione EXECUTAR!');
+  updatePal(L.pal);
+  renderDots();
+}
+
+function updatePal(pal){
+  const hide=['repeat','ifc','rch','sv','def','call'];
+  const ids={'repeat':'pb-repeat','ifc':'pb-if','rch':'pb-rch','sv':'pb-sv','def':'pb-def','call':'pb-call'};
+  hide.forEach(t=>{
+    const el=document.getElementById(ids[t]);
+    if(el) el.style.display=pal.includes(t)?'flex':'none';
+  });
+}
+
+function renderDots(){
+  const el=document.getElementById('dots');
+  el.innerHTML=LEVELS.map((l,i)=>{
+    const unlocked = i === 0 || (prog.stars[i-1] !== undefined);
+    const cls=i===curLv?'act':(prog.stars[i]>0)?'done':unlocked?'':'locked';
+    return `<button class="dot ${cls}" onclick="if(!running&&${unlocked})startGame(${i})" title="${l.name}"></button>`;
+  }).join('');
+}
+
+function renderGrid(){
+  const L=LEVELS[curLv];
+  const gEl=document.getElementById('grid');
+  const maxW=Math.floor((276-(L.cols-1)*2)/L.cols);
+  const maxH=Math.floor((260-(L.rows-1)*2)/L.rows);
+  const cs2=Math.min(42,Math.max(28,maxW,maxH));
+  gEl.style.gridTemplateColumns=`repeat(${L.cols},${cs2}px)`;
+  gEl.innerHTML='';
+  for(let r=0;r<L.rows;r++){
+    for(let c=0;c<L.cols;c++){
+      const v=L.grid[r][c];
+      const cell=document.createElement('div');
+      cell.id=`gc${r}_${c}`;
+      cell.className='gc';
+      cell.style.width=cell.style.height=cs2+'px';
+      cell.style.fontSize=Math.round(cs2*.45)+'px';
+      if(v===0){cell.classList.add('wall');gEl.appendChild(cell);continue;}
+      const k=`${r},${c}`;
+      const isT=L.targets.some(t=>t[0]===r&&t[1]===c);
+      const isFx=gs.fixed.has(k);
+      const isR=gs.pos[0]===r&&gs.pos[1]===c;
+      const isTr=gs.trail.has(k);
+      const isRch=v===4||(L.recharge&&L.recharge.some(p=>p[0]===r&&p[1]===c));
+      if(isFx){cell.classList.add('fxd');cell.textContent='✅';}
+      else if(isT){cell.classList.add('tgt');cell.textContent='⚡';}
+      else if(isRch){cell.classList.add('rch');cell.textContent='🔋';}
+      if(isTr&&!isR&&!isT&&!isFx&&!isRch) cell.classList.add('trl');
+      if(isR){cell.classList.add('rbt');cell.innerHTML=`<span style="font-size:${Math.round(cs2*.52)}px">🤖</span>`;}
+      gEl.appendChild(cell);
+    }
+  }
+}
+
+function updateVUI(s){
+  const e=Math.max(0,Math.round(s.e));
+  document.getElementById('eV').textContent=e;
+  document.getElementById('eF').style.width=Math.min(100,e)+'%';
+  document.getElementById('eF').style.background=e>50?'var(--green)':e>25?'var(--amber)':'var(--red)';
+}
+
+async function runProg(){
+  if(running||!ws.length){if(!ws.length)setSB('Adicione blocos primeiro!','err');return;}
+  running=true;
+  document.getElementById('btn-run').disabled=true;
+  document.getElementById('btn-stop').style.display='block';
+  const L=LEVELS[curLv];
+  gs={pos:[...L.start],fixed:new Set(),e:L.startE,trail:new Set(),stop:false,fns:{}};
+  updateVUI(gs);renderGrid();
+  setSB('⚙️ Executando...');
+  await sleep(200);
+  await runBlocks(ws,gs);
+  running=false;
+  document.getElementById('btn-run').disabled=false;
+  document.getElementById('btn-stop').style.display='none';
+  document.querySelectorAll('.wb.exec').forEach(e=>e.classList.remove('exec'));
+  if(!gs.stop){
+    const win=L.targets.every(t=>gs.fixed.has(`${t[0]},${t[1]}`));
+    if(win){
+      snd.win();
+      const bc=countB(ws);
+      const stars=bc<=L.opt?3:bc<=L.opt*1.6?2:1;
+      // Atualiza progresso e libera a próxima missão
+      const jaPrimeiraVez = prog.stars[curLv] === undefined;
+      if(jaPrimeiraVez || stars > prog.stars[curLv]){
+        if(jaPrimeiraVez) prog.xp += L.xp; // XP só na primeira conclusão
+        prog.stars[curLv] = stars;
+        saveProg(); // 💾 Persiste no localStorage
+      }
+      showFB(true,stars,bc);
+    } else setSB('Sistemas incompletos! Tente novamente.','warn');
+  }
+}
+
+async function runBlocks(arr,s){
+  for(const b of arr){
+    if(s.stop)break;
+    hiB(b.id);
+    await sleep(110);
+    await BD[b.type].run(b.params,s,b.children||[]);
+    uhB(b.id);
+    if(s.stop)break;
+  }
+}
+
+function hiB(id){const el=document.getElementById('wb'+id);if(el){el.classList.add('exec');el.scrollIntoView({block:'nearest',behavior:'smooth'});}}
+function uhB(id){const el=document.getElementById('wb'+id);if(el)el.classList.remove('exec');}
+
+async function mv(dr,dc,s){
+  if(s.stop)return;
+  const L=LEVELS[curLv];
+  const [r,c]=s.pos;
+  const nr=r+dr,nc=c+dc;
+  if(nr<0||nr>=L.rows||nc<0||nc>=L.cols||L.grid[nr][nc]===0){
+    setSB('💥 O robô bateu!','err');
+    snd.wall();s.stop=true;return;
+  }
+  s.trail.add(`${r},${c}`);s.pos=[nr,nc];
+  s.e=Math.max(0,s.e-(L.cost||10));
+  updateVUI(s);
+  if(s.e<=0){renderGrid();setSB('🔋 Sem energia!','err');snd.err();s.stop=true;return;}
+  snd.move();renderGrid();
+  await sleep(340);
+}
+
+async function fixSys(s){
+  if(s.stop)return;
+  const L=LEVELS[curLv];const k=`${s.pos[0]},${s.pos[1]}`;
+  const isT=L.targets.some(t=>t[0]+','+t[1]===k);
+  if(isT && !s.fixed.has(k)){
+    s.fixed.add(k);renderGrid();snd.fix();
+    setSB(`✅ Reparado! (${s.fixed.size}/${L.targets.length})`,'ok');
+    await sleep(400);
+  } else {
+    setSB('⚠️ Nada para consertar aqui!');await sleep(300);
+  }
+}
+
+async function recharge(s){
+  if(s.stop)return;
+  const L=LEVELS[curLv];const [r,c]=s.pos;
+  const ok=L.grid[r][c]===4||(L.recharge&&L.recharge.some(p=>p[0]===r&&p[1]===c));
+  if(ok){s.e=100;updateVUI(s);snd.rch();setSB('⚡ Recarregado!','ok');}
+  await sleep(350);
+}
+
+function stopExec(){
+  if(gs)gs.stop=true;running=false;
+  document.getElementById('btn-run').disabled=false;
+  document.getElementById('btn-stop').style.display='none';
+  setSB('⛔ Parado.');
+}
+function resetLv(){stopExec();initLevel(curLv);}
+function setSB(m,c=''){const el=document.getElementById('sb');el.textContent=m;el.className=c?c:'';}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ════════════════════════════════════════════════
+// FEEDBACK & NAVIGATION
+// ════════════════════════════════════════════════
+function showFB(win,stars,bc){
+  const L=LEVELS[curLv];
+  document.getElementById('fb-ico').textContent=win?'🏆':'💥';
+  document.getElementById('fb-t').textContent=win?'Missão Concluída!':'Falha!';
+  document.getElementById('fb-s').innerHTML=[1,2,3].map(i=>`<span style="opacity:${stars>=i?1:.2}">${stars>=i?'⭐':'☆'}</span>`).join('');
+  document.getElementById('fb-b').textContent=win?`Excelente! Usou ${bc} blocos. +${L.xp} XP`:'Tente novamente.';
+  
+  const fbCode=document.getElementById('fb-code');
+  if(win){fbCode.innerHTML=hlPy(toPy(ws,0));fbCode.style.display='';}else fbCode.style.display='none';
+  
+  const nb=document.getElementById('fb-nxt');
+  if(win && curLv < LEVELS.length - 1){
+    nb.style.display='block';
+    nb.textContent=`🗺️ Menu — ${LEVELS[curLv+1].name} desbloqueada!`;
+    nb.onclick=()=>{closeFB(); goSelect();};
+  } else if(win){
+    nb.style.display='block';
+    nb.textContent='🏆 Parabéns! Ver Menu Principal';
+    nb.onclick=()=>{closeFB(); goSelect();};
+  } else {nb.style.display='none';}
+  
+  document.getElementById('fb').classList.add('show');
+  renderDots();
+}
+function closeFB(){document.getElementById('fb').classList.remove('show');}
+
+// ════════════════════════════════════════════════
+// SERVICE WORKER & PWA
+// ════════════════════════════════════════════════
+let deferredPrompt=null;
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg=>{
+        console.log('AstroCrew SW registrado! Escopo:',reg.scope);
+        // Verifica atualizações a cada vez que o jogo abre
+        reg.update();
+      })
+      .catch(err=>console.warn('SW não pôde ser registrado:',err));
+  });
+}
+
+// Captura o evento de instalação do browser
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('btn-install').classList.add('show');
+});
+
+window.addEventListener('appinstalled',()=>{
+  deferredPrompt=null;
+  document.getElementById('btn-install').classList.remove('show');
+  console.log('AstroCrew instalado como app!');
+});
+
+async function installApp(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const{outcome}=await deferredPrompt.userChoice;
+  console.log('Resultado da instalação:',outcome);
+  deferredPrompt=null;
+  document.getElementById('btn-install').classList.remove('show');
+}
+
+// Detecta conexão online/offline
+function updateOnlineStatus(){
+  const banner=document.getElementById('offline-banner');
+  if(banner) banner.classList.toggle('show',!navigator.onLine);
+}
+window.addEventListener('online',updateOnlineStatus);
+window.addEventListener('offline',updateOnlineStatus);
+updateOnlineStatus();
+
+// BOOT
+buildSelect();
+</script>
+</body>
+</html>

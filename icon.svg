@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fundo -->
+  <rect width="512" height="512" rx="80" fill="#04060F"/>
+
+  <!-- Estrelas de fundo -->
+  <circle cx="60" cy="80"  r="2.5" fill="#00E5FF" opacity="0.6"/>
+  <circle cx="420" cy="60" r="2"   fill="#00E5FF" opacity="0.4"/>
+  <circle cx="460" cy="200" r="3"  fill="#ffffff" opacity="0.3"/>
+  <circle cx="80" cy="380"  r="2"  fill="#00E5FF" opacity="0.5"/>
+  <circle cx="440" cy="420" r="2.5" fill="#ffffff" opacity="0.3"/>
+  <circle cx="150" cy="450" r="2"  fill="#00E5FF" opacity="0.4"/>
+  <circle cx="370" cy="470" r="3"  fill="#ffffff" opacity="0.25"/>
+  <circle cx="30" cy="250"  r="1.5" fill="#ffffff" opacity="0.4"/>
+  <circle cx="490" cy="310" r="2"  fill="#00E5FF" opacity="0.5"/>
+
+  <!-- Corpo da nave (elipse central) -->
+  <ellipse cx="256" cy="240" rx="78" ry="110" fill="#0F1830"/>
+  <ellipse cx="256" cy="240" rx="78" ry="110" fill="none" stroke="#00E5FF" stroke-width="3" opacity="0.8"/>
+
+  <!-- Janela da nave -->
+  <circle cx="256" cy="210" r="38" fill="#141F3A"/>
+  <circle cx="256" cy="210" r="38" fill="none" stroke="#00E5FF" stroke-width="2.5"/>
+  <circle cx="256" cy="210" r="28" fill="#0A1525"/>
+  <!-- Reflexo na janela -->
+  <ellipse cx="244" cy="200" rx="10" ry="6" fill="#00E5FF" opacity="0.15" transform="rotate(-30 244 200)"/>
+
+  <!-- Robô na janela 🤖 -->
+  <!-- Cabeça do robô -->
+  <rect x="242" y="196" width="28" height="24" rx="5" fill="#00E5FF" opacity="0.9"/>
+  <!-- Olhos -->
+  <circle cx="250" cy="205" r="3.5" fill="#04060F"/>
+  <circle cx="262" cy="205" r="3.5" fill="#04060F"/>
+  <!-- Brilho nos olhos -->
+  <circle cx="251.5" cy="203.5" r="1.2" fill="#ffffff" opacity="0.8"/>
+  <circle cx="263.5" cy="203.5" r="1.2" fill="#ffffff" opacity="0.8"/>
+  <!-- Boca -->
+  <rect x="247" y="213" width="14" height="3" rx="1.5" fill="#04060F"/>
+
+  <!-- Ponta superior da nave -->
+  <path d="M256 112 C240 130 228 155 228 175 L284 175 C284 155 272 130 256 112Z" fill="#1E2F5A"/>
+  <path d="M256 112 C240 130 228 155 228 175 L284 175 C284 155 272 130 256 112Z" fill="none" stroke="#00E5FF" stroke-width="2.5" opacity="0.8"/>
+
+  <!-- Aletas laterais esquerda -->
+  <path d="M178 280 C160 270 148 290 152 310 L200 305 L200 260Z" fill="#1E2F5A"/>
+  <path d="M178 280 C160 270 148 290 152 310 L200 305 L200 260Z" fill="none" stroke="#FF6B2B" stroke-width="2" opacity="0.7"/>
+
+  <!-- Aletas laterais direita -->
+  <path d="M334 280 C352 270 364 290 360 310 L312 305 L312 260Z" fill="#1E2F5A"/>
+  <path d="M334 280 C352 270 364 290 360 310 L312 305 L312 260Z" fill="none" stroke="#FF6B2B" stroke-width="2" opacity="0.7"/>
+
+  <!-- Bocal do motor -->
+  <ellipse cx="256" cy="348" rx="38" ry="14" fill="#0F1830"/>
+  <ellipse cx="256" cy="348" rx="38" ry="14" fill="none" stroke="#00E5FF" stroke-width="2" opacity="0.6"/>
+
+  <!-- Chama do foguete -->
+  <ellipse cx="256" cy="370" rx="22" ry="8" fill="#FF6B2B" opacity="0.9"/>
+  <ellipse cx="256" cy="380" rx="16" ry="10" fill="#FFD166" opacity="0.85"/>
+  <ellipse cx="256" cy="395" rx="10" ry="14" fill="#FF6B2B" opacity="0.6"/>
+  <ellipse cx="256" cy="412" rx="6"  ry="12" fill="#FFD166" opacity="0.35"/>
+
+  <!-- Brilho lateral na nave -->
+  <ellipse cx="228" cy="230" rx="6" ry="18" fill="#00E5FF" opacity="0.08" transform="rotate(-10 228 230)"/>
+
+  <!-- Texto ASTROCREW -->
+  <text x="256" y="470" font-family="Arial Black, Arial, sans-serif" font-size="34" font-weight="900"
+        text-anchor="middle" fill="#00E5FF" letter-spacing="2" opacity="0.9">ASTRO</text>
+  <text x="256" y="500" font-family="Arial Black, Arial, sans-serif" font-size="22" font-weight="700"
+        text-anchor="middle" fill="#FF6B2B" letter-spacing="3" opacity="0.85">CREW</text>
+</svg>
