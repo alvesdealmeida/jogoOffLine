@@ -12,6 +12,24 @@
 <link rel="apple-touch-icon" href="icon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Exo+2:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* Bloqueio para Desktop */
+@media screen and (min-width: 1025px) {
+    body::before {
+        content: "⚠️ ACESSO NEGADO: Este simulador foi otimizado exclusivamente para dispositivos Mobile e Tablets. Por favor, acesse via celular ou iPad.";
+        position: fixed;
+        inset: 0;
+        background: #04060F;
+        color: #00E5FF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px;
+        z-index: 10000;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+    }
+}
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#04060F;--deep:#080E1F;--panel:#0F1830;--p2:#141F3A;
@@ -174,6 +192,83 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);heigh
 /* ── SAVE INDICATOR ── */
 .saved-pulse{animation:savedFade 1.4s ease forwards}
 @keyframes savedFade{0%{opacity:1}80%{opacity:1}100%{opacity:0}}
+
+/* --- AJUSTES PARA CELULAR E TABLET --- */
+@media screen and (max-width: 1024px) {
+    /* Ajusta a barra superior para não cortar itens */
+    #topbar {
+        height: auto;
+        min-height: 50px;
+        flex-wrap: wrap;
+        padding: 5px;
+        gap: 4px;
+    }
+
+    /* Reduz a paleta lateral para sobrar espaço para o código */
+    #pal {
+        width: 130px; 
+        padding: 2px;
+    }
+    .pb {
+        font-size: 0.65rem;
+        padding: 5px;
+    }
+
+    /* Ajusta o Game Panel (Mapa) para não empurrar o resto */
+    #gp {
+        width: 180px; /* Reduz a largura do mapa em telas pequenas */
+    }
+    
+    .gc {
+        width: 25px !important; /* Força células menores no grid */
+        height: 25px !important;
+    }
+
+    /* Ajusta a barra inferior de botões (Onde o 'Executar' costuma sumir) */
+    #bot {
+        height: auto;
+        min-height: 60px;
+        flex-wrap: wrap;
+        padding: 8px;
+        justify-content: space-around;
+    }
+
+    #btn-run, #btn-stop {
+        padding: 10px 15px;
+        font-size: 0.7rem;
+    }
+
+    /* Esconde o XP na seleção para ganhar espaço vertical */
+    .sel-xp {
+        margin-top: 5px;
+        font-size: 0.7rem;
+    }
+
+    /* Ajusta os blocos no Workspace para não ficarem gigantes */
+    .wbh {
+        padding: 5px;
+    }
+    .wbl {
+        font-size: 0.65rem;
+    }
+}
+
+/* Ajuste específico para celulares muito pequenos */
+@media screen and (max-width: 480px) {
+    #main {
+        flex-direction: column; /* Empilha Paleta e Workspace se necessário */
+        overflow-y: auto;
+    }
+    #pal, #ws-wrap, #gp {
+        width: 100% !important;
+        height: auto;
+        flex: none;
+    }
+    #gp {
+        order: -1; /* Coloca o mapa no topo para o aluno ver o robô */
+        height: 250px;
+    }
+}
 </style>
 </head>
 <body>
